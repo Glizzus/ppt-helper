@@ -1,2 +1,3 @@
 python-pptx==1.0.0
-ollama
+ollama==0.4.7
+lxml-stubs

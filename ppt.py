@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import IntEnum
 from typing import Annotated
 from pptx import Presentation
 from pptx.opc.constants import RELATIONSHIP_TYPE

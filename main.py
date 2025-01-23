@@ -1,9 +1,34 @@
+from pathlib import Path
 import sys
+from typing import TextIO
 import ollama
+import argparse
 from ppt import Schema, create_ppt
 
 
+parser = argparse.ArgumentParser(
+    description="Generate a template for a PowerPoint presentation"
+)
+parser.add_argument(
+    'dir',
+    type=Path,
+    nargs='?',
+    default=Path.cwd(),
+)
+
+args = parser.parse_args()
+
 ollama_client = ollama.Client()
+
+
+def read_until_empty_line(input_stream: TextIO = sys.stdin) -> str:
+    lines: list[str] = []
+    for line in input_stream:
+        if line.strip() == "":
+            break
+        lines.append(line)
+    return "".join(lines)
+
 
 system_prompt = """You are tasked with generating a JSON object
 that recommends colors and typefaces for a PowerPoint presentation.
@@ -15,13 +40,7 @@ Requirements for your JSON response:
 3. Include a header font and a body typeface.
 4. Return valid JSON"""
 
-user_prompt = """Our client requires a presentation on:
-- ElasticSearch
-- Logging
-- Observability
-
-They want a clean, modern look that conveys a technical, professional mood. 
-Please generate a color scheme and font recommendations that fit these requirements."""
+user_prompt = read_until_empty_line(sys.stdin)
 
 full_str_response = ""
 stream = ollama_client.generate(
@@ -41,4 +60,4 @@ for chunk in stream:
 
 response_schema = Schema.model_validate_json(full_str_response)
 
-create_ppt(response_schema, "C:/Users/Glizzus/Documents/dev_container_template.pptx")
+create_ppt(response_schema, args.dir / "output.pptx")
